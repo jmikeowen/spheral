@@ -26,7 +26,7 @@ function(spheral_add_cxx_library package_name)
     blt_add_library(NAME        Spheral_${package_name}
                     HEADERS     ${${package_name}_headers}
                     SOURCES     ${${package_name}_sources}
-                    DEPENDS_ON  -Wl,--start-group ${spheral_blt_depends} ${${package_name}_ADDITIONAL_DEPENDS} -Wl,--end-group
+                    DEPENDS_ON  -Wl,--start-group ${spheral_blt_depends} ${${package_name}_ADDITIONAL_DEPENDS} ${SPHERAL_CXX_DEPENDS} -Wl,--end-group
                     SHARED      FALSE
                     )
   else()
@@ -34,10 +34,13 @@ function(spheral_add_cxx_library package_name)
     blt_add_library(NAME        Spheral_${package_name}
                     HEADERS     ${${package_name}_headers}
                     SOURCES     ${${package_name}_sources}
-                    DEPENDS_ON  -Wl,--start-group ${spheral_blt_depends} ${${package_name}_ADDITIONAL_DEPENDS} -Wl,--end-group
-                    SHARED      TRUE
+                    DEPENDS_ON  -Wl,--start-group ${spheral_blt_depends} ${${package_name}_ADDITIONAL_DEPENDS} ${SPHERAL_CXX_DEPENDS} -Wl,--end-group
+                    SHARED      FALSE
                     )
   endif()
+
+  # This is needed for linking cuda device compiled code
+  set_target_properties(Spheral_${package_name} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
   # Only add target depends if the list exists, can throw an error otherwise
   if(spheral_depends)
@@ -102,14 +105,21 @@ function(spheral_add_pybind11_library package_name)
   set(MODULE_NAME Spheral${package_name})
   blt_add_library(NAME         ${MODULE_NAME}
                   SOURCES      ${PYB11_GENERATED_SOURCE} ${${package_name}_ADDITIONAL_SOURCES}
-                  DEPENDS_ON   -Wl,--start-group ${SPHERAL_CXX_LIBS} ${spheral_blt_depends} ${${package_name}_ADDITIONAL_DEPENDS} -Wl,--end-group
+                  DEPENDS_ON   -Wl,--start-group ${SPHERAL_CXX_LIBS} ${spheral_blt_depends} ${${package_name}_ADDITIONAL_DEPENDS} ${SPHERAL_CXX_DEPENDS} -Wl,--end-group
                   INCLUDES     ${${package_name}_ADDITIONAL_INCLUDES}
                   OUTPUT_NAME  ${MODULE_NAME}
                   CLEAR_PREFIX TRUE
                   SHARED       TRUE
                   )
   add_dependencies(${MODULE_NAME} ${spheral_py_depends} ${spheral_depends})
-  target_compile_options(${MODULE_NAME} PRIVATE ${SPHERAL_PYB11_TARGET_FLAGS})
+
+  if (NOT ENABLE_CUDA)
+    target_compile_options(${MODULE_NAME} PRIVATE ${SPHERAL_PYB11_TARGET_FLAGS})
+  else()
+    target_compile_options(${MODULE_NAME} PRIVATE
+      $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=partial_override>) 
+      #partial_override (611) overloaded virtual function %n1 is only partially overridden in %n2.
+  endif()
 
   install(TARGETS     ${MODULE_NAME}
           DESTINATION Spheral
@@ -117,7 +127,7 @@ function(spheral_add_pybind11_library package_name)
 
   # Set the r-path of the C++ lib such that it is independent of the build dir when installed
   set_target_properties(${MODULE_NAME} PROPERTIES
-                        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${boost_DIR}/lib;${python_DIR}/lib"
-                        )
+    INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${boost_DIR}/lib;${python_DIR}/lib;${silo_DIR}/lib"
+    )
 
 endfunction()
