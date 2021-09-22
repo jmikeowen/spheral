@@ -572,7 +572,7 @@ read(Field<Dim<1>, int>& value, const string pathName) const {
   readGenericType(value, pathName);
 }
 
-// int
+// unsigned
 void
 FlatFileIO::
 read(Field<Dim<1>, unsigned>& value, const string pathName) const {
@@ -927,7 +927,7 @@ FlatFileIO::findPathName(const string pathName) const {
   while (!mFilePtr->eof() && currentPath != pathName) {
     currentPath = "";
     char thpt = '0';
-    size_t i = 0;
+    int i = 0;
     while (!mFilePtr->eof() && thpt != '\n' && i < pathName.size()) {
       mFilePtr->get(thpt);
       currentPath += thpt;
