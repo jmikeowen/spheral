@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
   std::uniform_real_distribution<double> tinyDoubleDistribution(0.0, 1.0e-20);
   std::uniform_real_distribution<double> hugeDoubleDistribution(0.0, sqrt(numeric_limits<double>::max()));
 
-  // Make a big ass vector of doubles.
+  // Make a big vector of doubles.
   const int n = 10000;
   cerr << "Generating random input..." << endl;
   vector<double> xinput(3*n);
