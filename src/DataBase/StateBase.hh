@@ -18,8 +18,7 @@
 
 #include "Field/FieldBase.hh"
 
-#include "boost/any.hpp"
-
+#include <any>
 #include <string>
 #include <utility>
 #include <memory>
@@ -162,9 +161,9 @@ public:
 
 protected:
   //--------------------------- Protected Interface ---------------------------//
-  typedef std::map<KeyType, boost::any> StorageType;
+  typedef std::map<KeyType, std::any> StorageType;
   typedef std::list<std::shared_ptr<FieldBase<Dimension>>> FieldCacheType;
-  typedef std::list<boost::any> CacheType;
+  typedef std::list<std::any> CacheType;
 
   // Protected data.
   StorageType mStorage;

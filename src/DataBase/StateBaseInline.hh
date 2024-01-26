@@ -36,7 +36,7 @@ allFields(const Value&) const {
        itr != mStorage.end();
        ++itr) {
     try {
-      Field<Dimension, Value>* ptr = dynamic_cast<Field<Dimension, Value>*>(boost::any_cast<FieldBase<Dimension>*>(itr->second));
+      Field<Dimension, Value>* ptr = dynamic_cast<Field<Dimension, Value>*>(std::any_cast<FieldBase<Dimension>*>(itr->second));
       if (ptr != 0) result.push_back(ptr);
     } catch (...) {
       // The field must have been the wrong type.
@@ -88,9 +88,9 @@ Value&
 StateBase<Dimension>::
 getAny(const typename StateBase<Dimension>::KeyType& key) const {
   try {
-    Value& result = *boost::any_cast<Value*>(mStorage.find(key)->second);
+    Value& result = *std::any_cast<Value*>(mStorage.find(key)->second);
     return result;
-  } catch (const boost::bad_any_cast&) {
+  } catch (const std::bad_any_cast&) {
     VERIFY2(false, "StateBase::getAny ERROR: unable to extract Value for " << key << "\n");
   }
 }

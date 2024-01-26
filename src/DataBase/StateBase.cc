@@ -30,11 +30,11 @@ namespace Spheral {
 // //------------------------------------------------------------------------------
 // template<typename T>
 // T*
-// extractType(boost::any& anyT) {
+// extractType(std::any& anyT) {
 //   try {
-//     T* result = boost::any_cast<T*>(anyT);
+//     T* result = std::any_cast<T*>(anyT);
 //     return result;
-//   } catch (boost::any_cast_error) {
+//   } catch (std::any_cast_error) {
 //     return NULL;
 //   }
 // }
@@ -125,21 +125,21 @@ operator==(const StateBase<Dimension>& rhs) const {
        rhsItr != rhs.mStorage.end();
        ++rhsItr, ++lhsItr) {
     try {
-      auto lhsPtr = boost::any_cast<FieldBase<Dimension>*>(lhsItr->second);
-      auto rhsPtr = boost::any_cast<FieldBase<Dimension>*>(rhsItr->second);
+      auto lhsPtr = std::any_cast<FieldBase<Dimension>*>(lhsItr->second);
+      auto rhsPtr = std::any_cast<FieldBase<Dimension>*>(rhsItr->second);
       if (*lhsPtr != *rhsPtr) {
         cerr << "Fields for " << lhsItr->first <<  " don't match." << endl;
         result = false;
       }
-    } catch (const boost::bad_any_cast&) {
+    } catch (const std::bad_any_cast&) {
       try {
-        auto lhsPtr = boost::any_cast<vector<Vector>*>(lhsItr->second);
-        auto rhsPtr = boost::any_cast<vector<Vector>*>(rhsItr->second);
+        auto lhsPtr = std::any_cast<vector<Vector>*>(lhsItr->second);
+        auto rhsPtr = std::any_cast<vector<Vector>*>(rhsItr->second);
         if (*lhsPtr != *rhsPtr) {
           cerr << "vector<Vector> for " << lhsItr->first <<  " don't match." << endl;
           result = false;
         }
-      } catch (const boost::bad_any_cast&) {
+      } catch (const std::bad_any_cast&) {
         std::cerr << "StateBase::operator== WARNING: unable to compare values for " << lhsItr->first << "\n";
       }
     }
@@ -205,7 +205,7 @@ void
 StateBase<Dimension>::
 enroll(FieldBase<Dimension>& field) {
   const KeyType key = this->key(field);
-  boost::any fieldptr;
+  std::any fieldptr;
   fieldptr = &field;
   mStorage[key] = fieldptr;
   mNodeListPtrs.insert(field.nodeListPtr());
@@ -382,15 +382,15 @@ assign(const StateBase<Dimension>& rhs) {
     auto& anylhs = mStorage[itr->first];
     const auto& anyrhs = itr->second;
     try {
-      auto lhsptr = boost::any_cast<FieldBase<Dimension>*>(anylhs);
-      const auto rhsptr = boost::any_cast<FieldBase<Dimension>*>(anyrhs);
+      auto lhsptr = std::any_cast<FieldBase<Dimension>*>(anylhs);
+      const auto rhsptr = std::any_cast<FieldBase<Dimension>*>(anyrhs);
       *lhsptr = *rhsptr;
-    } catch(const boost::bad_any_cast&) {
+    } catch(const std::bad_any_cast&) {
       try {
-        auto lhsptr = boost::any_cast<vector<Vector>*>(anylhs);
-        const auto rhsptr = boost::any_cast<vector<Vector>*>(anyrhs);
+        auto lhsptr = std::any_cast<vector<Vector>*>(anylhs);
+        const auto rhsptr = std::any_cast<vector<Vector>*>(anyrhs);
         *lhsptr = *rhsptr;
-      } catch(const boost::bad_any_cast&) {
+      } catch(const std::bad_any_cast&) {
         // We'll assume other things don't need to be assigned...
         // VERIFY2(false, "StateBase::assign ERROR: unknown type for key " << itr->first << "\n");
       }
@@ -430,22 +430,22 @@ copyState() {
   for (auto itr = mStorage.begin();
        itr != mStorage.end();
        ++itr) {
-    boost::any anythingPtr = itr->second;
+    std::any anythingPtr = itr->second;
 
     // Is this a Field?
     try {
-      auto ptr = boost::any_cast<FieldBase<Dimension>*>(anythingPtr);
+      auto ptr = std::any_cast<FieldBase<Dimension>*>(anythingPtr);
       mFieldCache.push_back(ptr->clone());
       itr->second = mFieldCache.back().get();
 
-    } catch (const boost::bad_any_cast&) {
+    } catch (const std::bad_any_cast&) {
       try {
-        auto ptr = boost::any_cast<vector<Vector>*>(anythingPtr);
+        auto ptr = std::any_cast<vector<Vector>*>(anythingPtr);
         auto clone = std::shared_ptr<vector<Vector>>(new vector<Vector>(*ptr));
         mCache.push_back(clone);
         itr->second = clone.get();
 
-      } catch (const boost::bad_any_cast&) {
+      } catch (const std::bad_any_cast&) {
         // We'll assume other things don't need to be copied...
         // VERIFY2(false, "StateBase::copyState ERROR: unrecognized type for " << itr->first << "\n");
       }
