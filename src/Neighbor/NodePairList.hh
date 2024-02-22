@@ -9,7 +9,6 @@
 #include <tuple>
 #include <functional>
 #include <iostream>
-// #include <boost/container_hash/hash.hpp>
 
 // These are based on what we get from size_t_bits
 #define MAX_NODE_INDEX (size_t(1u) << ((SIZE_T_BITS - 10)/2))
@@ -103,8 +102,6 @@ namespace std {
   struct hash<Spheral::NodePairIdxType> {
     size_t operator()(const Spheral::NodePairIdxType& x) const {
       return x.hash();
-      // boost::hash<std::tuple<int, int, int, int>> hasher;
-      // return hasher(std::make_tuple(x.i_node, x.i_list, x.j_node, x.j_list));
     }
   };
 } // namespace std

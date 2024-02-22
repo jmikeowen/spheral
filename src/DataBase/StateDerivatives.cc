@@ -164,20 +164,20 @@ Zero() {
        ++itr) {
 
     try {
-      auto ptr = boost::any_cast<FieldBase<Dimension>*>(itr->second);
+      auto ptr = std::any_cast<FieldBase<Dimension>*>(itr->second);
       ptr->Zero();
 
-    } catch (const boost::bad_any_cast&) {
+    } catch (const std::bad_any_cast&) {
       try {
-        auto ptr = boost::any_cast<vector<Vector>*>(itr->second);
+        auto ptr = std::any_cast<vector<Vector>*>(itr->second);
         ptr->clear();
 
-      } catch (const boost::bad_any_cast&) {
+      } catch (const std::bad_any_cast&) {
         try {
-          auto ptr = boost::any_cast<vector<Scalar>*>(itr->second);
+          auto ptr = std::any_cast<vector<Scalar>*>(itr->second);
           ptr->clear();
 
-        } catch (const boost::bad_any_cast&) {
+        } catch (const std::bad_any_cast&) {
           VERIFY2(false, "StateDerivatives::Zero ERROR: unknown type for key " << itr->first << "\n");
         }
       }
